@@ -35,9 +35,10 @@ interface ApiInterface {
     fun getDailyForecast(
         @Query("lat") latitude: Float = 51.5074f,
         @Query("lon") longitude: Float = 0.1278f,
-        @Query("days") days: Int = 2,
+        @Query("days") days: Int = 4,
         @Query("key") key: String = "e4eea2eedb4d41bc8a05e597c6ddd01f"
     ): Call<WeatherResponse>
+
 
 
 }
