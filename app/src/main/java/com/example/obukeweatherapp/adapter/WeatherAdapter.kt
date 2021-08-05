@@ -15,7 +15,8 @@ import com.example.obukeweatherapp.SingleWeatherActivity
 import com.example.obukeweatherapp.models.DailyWeatherData
 
 class WeatherAdapter(
-    private val context: Context, private val listOfWeatherData: List<DailyWeatherData>, val buttonListener: View.OnClickListener
+    private val context: Context, private val listOfWeatherData: List<DailyWeatherData>, val buttonListener: View.OnClickListener,
+    private val cityName: String
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int)
@@ -83,6 +84,9 @@ class WeatherAdapter(
                         ContextCompat.getDrawable(context, R.drawable.border_round_yellow)
                 }
             }
+
+            locationText.text = cityName
+
             dateText.text = weatherData.dayDate
 
             val degreesValue = "${weatherData.temperature} °"

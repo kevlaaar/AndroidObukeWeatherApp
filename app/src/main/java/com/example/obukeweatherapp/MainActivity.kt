@@ -1,11 +1,15 @@
 package com.example.obukeweatherapp
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,7 +24,6 @@ import retrofit2.Response
 
 class MainActivity: AppCompatActivity() {
 
-//    lateinit var weatherRecycler: RecyclerView
     lateinit var fourDayButton: Button
     lateinit var tenDayButton: Button
     lateinit var sixteenDayButton: Button
@@ -37,7 +40,7 @@ class MainActivity: AppCompatActivity() {
         fourDayButton = findViewById(R.id.fourDayButton)
 
         fourDayButton.setOnClickListener {
-            showDialogFragment("Four day button clicked")
+            goToFragment(FourDayFragment())
         }
         tenDayButton = findViewById(R.id.tenDayButton)
         tenDayButton.setOnClickListener {
@@ -82,7 +85,7 @@ class MainActivity: AppCompatActivity() {
         })
     }
     private fun populateTheRecycler(listOfWeatherData: List<DailyWeatherData>){
-        val adapter = WeatherAdapter(this, listOfWeatherData, goToTopListener)
+        val adapter = WeatherAdapter(this, listOfWeatherData, goToTopListener, "error")
 //        weatherRecycler.adapter = adapter
     }
     val goToTopListener =  View.OnClickListener {

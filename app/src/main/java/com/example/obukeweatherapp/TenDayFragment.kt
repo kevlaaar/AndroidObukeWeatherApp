@@ -53,7 +53,7 @@ class TenDayFragment: Fragment()  {
     }
 
     private fun populateTheRecycler(listOfWeatherData: List<DailyWeatherData>){
-        val adapter = WeatherAdapter(requireContext(), listOfWeatherData, goToTopListener)
+        val adapter = WeatherAdapter(requireContext(), listOfWeatherData, goToTopListener, "error")
         tenDayRecycler.adapter = adapter
     }
 

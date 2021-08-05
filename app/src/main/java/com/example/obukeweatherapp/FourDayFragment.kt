@@ -45,7 +45,8 @@ class FourDayFragment: Fragment()  {
                 response.body()?.let {
                     val size = it.data.size
                     Log.e("RESPONSE SIZE", "$size")
-                    populateTheRecycler(it.data)
+                    goToDetailsFragment()
+//                    populateTheRecycler(it.data)
                 }
             }
 
@@ -55,8 +56,14 @@ class FourDayFragment: Fragment()  {
         })
     }
 
+    private fun goToDetailsFragment() {
+        requireActivity().supportFragmentManager.beginTransaction().
+                add(R.id.fragmentContainer,TenDayFragment())
+            .commit()
+    }
+
     private fun populateTheRecycler(listOfWeatherData: List<DailyWeatherData>){
-        val adapter = WeatherAdapter(requireContext(), listOfWeatherData, goToTopListener)
+        val adapter = WeatherAdapter(requireContext(), listOfWeatherData, goToTopListener, "error")
         fourDayRecycler.adapter = adapter
     }
 
