@@ -3,6 +3,7 @@ package com.example.obukeweatherapp
 import android.Manifest
 import android.content.Context.LOCATION_SERVICE
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
@@ -10,6 +11,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -27,6 +30,10 @@ class CitiesFragment : Fragment(), OnCityClickListener {
 
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     lateinit var cityAdapter: CityAdapter
+    lateinit var editText: EditText
+    lateinit var textView: TextView
+
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -38,6 +45,18 @@ class CitiesFragment : Fragment(), OnCityClickListener {
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(requireContext())
 
+        editText = view.findViewById(R.id.usernameEditText)
+        val screenOrientation = resources.configuration.orientation
+
+        if(screenOrientation == Configuration.ORIENTATION_PORTRAIT) {
+            textView = view.findViewById(R.id.textView)
+            savedInstanceState?.let {
+                val value = it.getString("ET_VALUE")
+                Log.e("SavedInstanceState", "rekreira - $value")
+                textView.text = value
+                view.requestLayout()
+            }
+        }
 
         val cityList = mutableListOf<CityModel>()
         cityList.add(CityModel(0, "London", 51.5074f, 0.1278f))
@@ -116,16 +135,41 @@ class CitiesFragment : Fragment(), OnCityClickListener {
 
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        Log.e("SavedInstanceState", "sejvuje")
+        val string: String = editText.text.toString()
+        outState.putString("ET_VALUE", string)
+    }
+
     override fun onCityClick(city: CityModel) {
-        val args = Bundle()
-        args.putSerializable("CITY_OBJECT", city)
-        val sixteenDayFragment = SixteenDayFragment()
-        sixteenDayFragment.arguments = args
-        activity?.let {
-            it.supportFragmentManager.beginTransaction()
-                .add(R.id.rootFragmentContainer, sixteenDayFragment)
-                .addToBackStack("fragment_backstack")
-                .commit()
+
+        val screenOrientation = resources.configuration.orientation
+
+        if(screenOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+            val args = Bundle()
+            args.putSerializable("CITY_OBJECT", city)
+            val sixteenDayFragment = SixteenDayFragment()
+            sixteenDayFragment.arguments = args
+            activity?.let {
+                it.supportFragmentManager.beginTransaction()
+                    .add(R.id.weatherFragmentContainer, sixteenDayFragment)
+                    .addToBackStack("fragment_backstack")
+                    .commit()
+            }
+        } else {
+            val args = Bundle()
+            args.putSerializable("CITY_OBJECT", city)
+            val sixteenDayFragment = SixteenDayFragment()
+            sixteenDayFragment.arguments = args
+            activity?.let {
+                it.supportFragmentManager.beginTransaction()
+                    .add(R.id.rootFragmentContainer, sixteenDayFragment)
+                    .addToBackStack("fragment_backstack")
+                    .commit()
+            }
         }
     }
+
+
 }
