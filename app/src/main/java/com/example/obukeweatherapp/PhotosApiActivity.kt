@@ -1,21 +1,26 @@
 package com.example.obukeweatherapp
 
 import android.Manifest
+import android.content.ContentUris
 import android.content.ContentValues
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Button
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.bumptech.glide.Glide
+import com.example.obukeweatherapp.adapter.PhotoOnClickListener
 import com.example.obukeweatherapp.adapter.PhotosAdapter
 import com.example.obukeweatherapp.models.Photos
 import com.example.obukeweatherapp.models.PhotosResponse
@@ -26,24 +31,27 @@ import java.io.IOException
 import java.net.URL
 
 
-class PhotosApiActivity : AppCompatActivity() {
+class PhotosApiActivity : AppCompatActivity(), PhotoOnClickListener {
 
     lateinit var photosRecycler: RecyclerView
     lateinit var photosAdapter: PhotosAdapter
-    lateinit var downloadButton: Button
     lateinit var photoList: List<Photos>
+    lateinit var folderIcon: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_photos_api)
 
         photosRecycler = findViewById(R.id.photosRecycler)
-        downloadButton = findViewById(R.id.downloadPhotoButton)
         photosRecycler.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-
+        requestExternalStoragePermissions()
         val photosCall = ApiInterface.create().getCuratedPhotos()
-
+        folderIcon = findViewById(R.id.folderIcon)
+        folderIcon.setOnClickListener{
+            val intent = Intent(this, DownloadedPhotosActivity::class.java)
+            startActivity(intent)
+        }
         photosCall.enqueue(object : Callback<PhotosResponse> {
             override fun onResponse(
                 call: Call<PhotosResponse>,
@@ -59,39 +67,18 @@ class PhotosApiActivity : AppCompatActivity() {
 
             }
         })
-        downloadButton.setOnClickListener {
-            if (requestExternalStoragePermissions()) {
-                val position =
-                    (photosRecycler.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-                downloadThePhoto(position)
-            }
-        }
     }
 
     private fun loadTheAdapter(listOfPhotos: List<Photos>) {
-        photosAdapter = PhotosAdapter(this, listOfPhotos)
+        photosAdapter = PhotosAdapter(this, listOfPhotos, this)
         photosRecycler.adapter = photosAdapter
         val snapHelper = LinearSnapHelper()
         snapHelper.attachToRecyclerView(photosRecycler)
     }
 
-    private fun downloadThePhoto(position: Int) {
-        val photoItem = photoList[position]
-        bitmapFromUrl(photoItem.photoResources.original, photoItem.photographerName)
-
-    }
-    private fun bitmapFromUrl(url: String, photographer: String) {
+    override fun onPhotoClick(photoBitmap: Bitmap) {
         val thread = Thread {
-            val bitmap: Bitmap
-            // Ur URL
-            try {
-                val url = URL(url)
-                bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream())
-                // UI component
-                savePhotoToInternalStorage(photographer, bitmap)
-            } catch (e: Exception) {
-//                Log.e("error message", Objects.requireNonNull(e.message))
-            }
+            savePhotoToInternalStorage("${System.currentTimeMillis()}", photoBitmap)
         }
         thread.start()
     }

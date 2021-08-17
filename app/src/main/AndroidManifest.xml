@@ -27,6 +27,8 @@
         <activity android:name=".WeatherActivity">
         </activity>
 
+        <activity android:name=".DownloadedPhotosActivity"/>
+
         <activity android:name=".PhotosApiActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
